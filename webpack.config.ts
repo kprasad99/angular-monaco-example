@@ -86,9 +86,16 @@ export default (config: webpack.Configuration) => {
       test: /\.css$/,
       use: ['style-loader', 'css-loader']
     },
+    // webpack 4 or lower
+    //{
+    //  test: /\.ttf$/,
+    //  use: ['file-loader'],
+    //}
+
+    // webpack 5
     {
       test: /\.ttf$/,
-      use: ['file-loader']
+      type: 'asset/resource'
     }
   );
   return config;

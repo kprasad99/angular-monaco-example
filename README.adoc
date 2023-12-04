@@ -1,0 +1,231 @@
+= Angular Monaco with Monaco YAML example
+
+Angular monaco example is example app for integrating Monaco, Monaco-YAML with Angular application.
+
+== Steps to integrate monaco with monaco-editor.
+
+- Install dependencies
++
+[source,shell]
+----
+npm i monaco-editor monaco-yaml
+----
+- Install dev dependencies
++
+[source,shel]
+----
+npm i -D @angular-builders/custom-webpack monaco-editor-webpack-plugin style-loader css-loader@^5.2
+----
++
+IMPORTANT:: double check the monaco version matrix
+
+- Create a custom webpack config.
++
+[source,typescript]
+----
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+import * as webpack from 'webpack';
+
+export default (config: webpack.Configuration) => {
+  config?.plugins?.push(
+    new MonacoWebpackPlugin({
+      // a ton of languages are lazily loaded by default, but we dont use any of them
+      languages: ['json', 'yaml'],
+      // we can disable features that we end up not needing/using
+      features: [
+        'accessibilityHelp',
+        'anchorSelect',
+        'bracketMatching',
+        // 'browser',
+        'caretOperations',
+        'clipboard',
+        // 'codeAction',
+        // 'codelens',
+        // 'colorPicker',
+        'comment',
+        'contextmenu',
+        'copyPaste',
+        'cursorUndo',
+        // 'dnd',
+        // 'documentSymbols',
+        // 'dropIntoEditor',
+        'find',
+        'folding',
+        // 'fontZoom',
+        'format',
+        'gotoError',
+        'gotoLine',
+        // 'gotoSymbol',
+        'hover',
+        // 'iPadShowKeyboard',
+        // 'inPlaceReplace',
+        'indentation',
+        // 'inlayHints',
+        'inlineCompletions',
+        // 'inspectTokens',
+        'lineSelection',
+        'linesOperations',
+        // 'linkedEditing',
+        // 'links',
+        // 'multicursor',
+        // 'parameterHints',
+        // 'quickCommand',
+        // 'quickHelp',
+        // 'quickOutline',
+        // 'readOnlyMessage',
+        // 'referenceSearch',
+        // 'rename',
+        'smartSelect',
+        // 'snippet',
+        'stickyScroll',
+        'suggest',
+        // 'toggleHighContrast',
+        'toggleTabFocusMode',
+        'tokenization',
+        'unicodeHighlighter',
+        // 'unusualLineTerminators',
+        // 'viewportSemanticTokens',
+        'wordHighlighter',
+        'wordOperations',
+        'wordPartOperations'
+      ],
+      customLanguages: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml',
+          worker: {
+            id: 'monaco-yaml/yamlWorker',
+            entry: 'monaco-yaml/yaml.worker'
+          }
+        }
+      ]
+    })
+  );
+  // Remove the existing css loader rule
+  const cssRuleIdx = config?.module?.rules?.findIndex((rule: any) => rule.test?.toString().includes(':css'));
+  if (cssRuleIdx !== -1) {
+    config?.module?.rules?.splice(cssRuleIdx!, 1);
+  }
+  config?.module?.rules?.push(
+    {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader']
+    },
+    // webpack 4 or lower
+    //{
+    //  test: /\.ttf$/,
+    //  use: ['file-loader'],
+    //}
+
+    // webpack 5
+    {
+      test: /\.ttf$/,
+      type: 'asset/resource'
+    }
+  );
+  return config;
+};
+
+----
+
+- Modify angular.json
+. modify `architect->build->builder` to use `custom-webpack` builder
+. add `customWebpackConfig` to `architect->build->builder->options`
+. modify `architect->build->builder->options->styles` to include monaco editor css
+. update  `architect->serve block to use `custom-webpack` builder.
++
+[source,json]
+----
+  "projects": {
+    "angular-monaco-example": {
+       ...
+        "architect": {
+            "build": {
+                "builder": "@angular-builders/custom-webpack:browser",
+                "options": {
+                    "customWebpackConfig": {
+                        "path": "./webpack.config.ts"
+                    },
+                    "styles": [
+                        "node_modules/monaco-editor/min/vs/editor/editor.main.css",
+                        ...
+                        "src/styles.scss"
+                    },
+                    ...
+                }
+                ...
+            }
+        },
+        "serve": {
+          "builder": "@angular-builders/custom-webpack:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "angular-monaco-example:build:production"
+            },
+            "development": {
+              "browserTarget": "angular-monaco-example:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+    ...
+
+----
+
+- Create an editor component as follows.
++
+[source,typescript]
+----
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Uri, editor } from 'monaco-editor/esm/vs/editor/editor.api';
+
+import 'monaco-editor';
+import { setDiagnosticsOptions } from 'monaco-yaml';
+
+@Component({
+  selector: 'k-editor',
+  templateUrl: './editor.component.html',
+  styleUrls: ['./editor.component.scss']
+})
+export class EditorComponent implements OnInit {
+  @ViewChild('editorContainer', { static: true }) _editorContainer!: ElementRef;
+  codeEditorInstance!: editor.IStandaloneCodeEditor;
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  constructor() {}
+
+  ngOnInit() {
+    const modelUri = Uri.parse('a://b/foo.yaml');
+    setDiagnosticsOptions({
+      enableSchemaRequest: true,
+      hover: true,
+      completion: true,
+      validate: true,
+      format: true,
+      schemas: [
+        {
+          // Id of the first schema
+          uri: './assets/schemas/metallb-schema.json',
+          // Associate with our model
+          fileMatch: [String(modelUri)]
+        }
+        //}
+      ]
+    });
+
+    this.codeEditorInstance = editor.create(this._editorContainer.nativeElement, {
+      theme: 'vs-dark',
+      //  wordWrap: 'on',
+      //  wrappingIndent: 'indent',
+      minimap: { enabled: true },
+      automaticLayout: true,
+      language: 'yaml',
+      model: editor.createModel('', 'yaml', modelUri)
+    });
+  }
+}
+----
+
+== Development server
+
+- Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
