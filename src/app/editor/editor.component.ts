@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Uri, editor } from 'monaco-editor/esm/vs/editor/editor.api';
 
-import 'monaco-editor';
-import { setDiagnosticsOptions } from 'monaco-yaml';
+import * as monaco from 'monaco-editor';
+import { configureMonacoYaml } from 'monaco-yaml';
 
 @Component({
   selector: 'k-editor',
@@ -18,7 +18,7 @@ export class EditorComponent implements OnInit {
 
   ngOnInit() {
     const modelUri = Uri.parse('a://b/foo.yaml');
-    setDiagnosticsOptions({
+    configureMonacoYaml(monaco, {
       enableSchemaRequest: true,
       hover: true,
       completion: true,
