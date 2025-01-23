@@ -73,10 +73,10 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "angular-monaco-example:build:production"
+              "buildTarget": "angular-monaco-example:build:production"
             },
             "development": {
-              "browserTarget": "angular-monaco-example:build:development"
+              "buildTarget": "angular-monaco-example:build:development"
             }
           },
           "defaultConfiguration": "development"
