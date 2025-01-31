@@ -24,7 +24,7 @@ expression
     | literal                                                    #LiteralExp
     ;
 
-functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')';
+functionCall: IDENTIFIER '(' expression (',' expression)* ')';
 
 literal
     : FLOAT                 #FloatLiteral

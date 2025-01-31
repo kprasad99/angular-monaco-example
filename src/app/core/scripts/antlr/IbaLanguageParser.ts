@@ -396,33 +396,25 @@ export default class IbaLanguageParser extends Parser {
 			this.match(IbaLanguageParser.IDENTIFIER);
 			this.state = 56;
 			this.match(IbaLanguageParser.LPAREN);
-			this.state = 65;
+			this.state = 57;
+			this.expression(0);
+			this.state = 62;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 4972544) !== 0)) {
+			while (_la===12) {
 				{
-				this.state = 57;
+				{
+				this.state = 58;
+				this.match(IbaLanguageParser.T__11);
+				this.state = 59;
 				this.expression(0);
-				this.state = 62;
+				}
+				}
+				this.state = 64;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
-				while (_la===12) {
-					{
-					{
-					this.state = 58;
-					this.match(IbaLanguageParser.T__11);
-					this.state = 59;
-					this.expression(0);
-					}
-					}
-					this.state = 64;
-					this._errHandler.sync(this);
-					_la = this._input.LA(1);
-				}
-				}
 			}
-
-			this.state = 67;
+			this.state = 65;
 			this.match(IbaLanguageParser.RPAREN);
 			}
 		}
@@ -445,14 +437,14 @@ export default class IbaLanguageParser extends Parser {
 		let localctx: LiteralContext = new LiteralContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 8, IbaLanguageParser.RULE_literal);
 		try {
-			this.state = 72;
+			this.state = 70;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case 16:
 				localctx = new FloatLiteralContext(this, localctx);
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 69;
+				this.state = 67;
 				this.match(IbaLanguageParser.FLOAT);
 				}
 				break;
@@ -460,7 +452,7 @@ export default class IbaLanguageParser extends Parser {
 				localctx = new IntegerLiteralContext(this, localctx);
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 70;
+				this.state = 68;
 				this.match(IbaLanguageParser.INTEGER);
 				}
 				break;
@@ -468,7 +460,7 @@ export default class IbaLanguageParser extends Parser {
 				localctx = new StringLiteralContext(this, localctx);
 				this.enterOuterAlt(localctx, 3);
 				{
-				this.state = 71;
+				this.state = 69;
 				this.match(IbaLanguageParser.STRING);
 				}
 				break;
@@ -516,30 +508,29 @@ export default class IbaLanguageParser extends Parser {
 		return true;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,25,75,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,25,73,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,1,0,4,0,12,8,0,11,0,12,0,13,1,0,1,0,1,1,1,
 	1,1,1,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,3,2,31,8,2,1,2,1,2,1,2,1,
 	2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,5,2,51,8,2,10,
-	2,12,2,54,9,2,1,3,1,3,1,3,1,3,1,3,5,3,61,8,3,10,3,12,3,64,9,3,3,3,66,8,
-	3,1,3,1,3,1,4,1,4,1,4,3,4,73,8,4,1,4,0,1,4,5,0,2,4,6,8,0,3,1,0,1,2,1,0,
-	3,4,1,0,5,9,84,0,11,1,0,0,0,2,17,1,0,0,0,4,30,1,0,0,0,6,55,1,0,0,0,8,72,
-	1,0,0,0,10,12,3,2,1,0,11,10,1,0,0,0,12,13,1,0,0,0,13,11,1,0,0,0,13,14,1,
-	0,0,0,14,15,1,0,0,0,15,16,5,0,0,1,16,1,1,0,0,0,17,18,3,4,2,0,18,19,5,24,
-	0,0,19,3,1,0,0,0,20,21,6,2,-1,0,21,22,5,22,0,0,22,23,3,4,2,0,23,24,5,23,
-	0,0,24,31,1,0,0,0,25,26,5,13,0,0,26,31,3,4,2,4,27,31,3,6,3,0,28,31,5,14,
-	0,0,29,31,3,8,4,0,30,20,1,0,0,0,30,25,1,0,0,0,30,27,1,0,0,0,30,28,1,0,0,
-	0,30,29,1,0,0,0,31,52,1,0,0,0,32,33,10,10,0,0,33,34,7,0,0,0,34,51,3,4,2,
-	11,35,36,10,9,0,0,36,37,7,1,0,0,37,51,3,4,2,10,38,39,10,8,0,0,39,40,7,2,
-	0,0,40,51,3,4,2,9,41,42,10,7,0,0,42,43,5,10,0,0,43,51,3,4,2,8,44,45,10,
-	6,0,0,45,46,5,11,0,0,46,51,3,4,2,6,47,48,10,5,0,0,48,49,5,13,0,0,49,51,
-	3,4,2,6,50,32,1,0,0,0,50,35,1,0,0,0,50,38,1,0,0,0,50,41,1,0,0,0,50,44,1,
-	0,0,0,50,47,1,0,0,0,51,54,1,0,0,0,52,50,1,0,0,0,52,53,1,0,0,0,53,5,1,0,
-	0,0,54,52,1,0,0,0,55,56,5,19,0,0,56,65,5,22,0,0,57,62,3,4,2,0,58,59,5,12,
-	0,0,59,61,3,4,2,0,60,58,1,0,0,0,61,64,1,0,0,0,62,60,1,0,0,0,62,63,1,0,0,
-	0,63,66,1,0,0,0,64,62,1,0,0,0,65,57,1,0,0,0,65,66,1,0,0,0,66,67,1,0,0,0,
-	67,68,5,23,0,0,68,7,1,0,0,0,69,73,5,16,0,0,70,73,5,17,0,0,71,73,5,15,0,
-	0,72,69,1,0,0,0,72,70,1,0,0,0,72,71,1,0,0,0,73,9,1,0,0,0,7,13,30,50,52,
-	62,65,72];
+	2,12,2,54,9,2,1,3,1,3,1,3,1,3,1,3,5,3,61,8,3,10,3,12,3,64,9,3,1,3,1,3,1,
+	4,1,4,1,4,3,4,71,8,4,1,4,0,1,4,5,0,2,4,6,8,0,3,1,0,1,2,1,0,3,4,1,0,5,9,
+	81,0,11,1,0,0,0,2,17,1,0,0,0,4,30,1,0,0,0,6,55,1,0,0,0,8,70,1,0,0,0,10,
+	12,3,2,1,0,11,10,1,0,0,0,12,13,1,0,0,0,13,11,1,0,0,0,13,14,1,0,0,0,14,15,
+	1,0,0,0,15,16,5,0,0,1,16,1,1,0,0,0,17,18,3,4,2,0,18,19,5,24,0,0,19,3,1,
+	0,0,0,20,21,6,2,-1,0,21,22,5,22,0,0,22,23,3,4,2,0,23,24,5,23,0,0,24,31,
+	1,0,0,0,25,26,5,13,0,0,26,31,3,4,2,4,27,31,3,6,3,0,28,31,5,14,0,0,29,31,
+	3,8,4,0,30,20,1,0,0,0,30,25,1,0,0,0,30,27,1,0,0,0,30,28,1,0,0,0,30,29,1,
+	0,0,0,31,52,1,0,0,0,32,33,10,10,0,0,33,34,7,0,0,0,34,51,3,4,2,11,35,36,
+	10,9,0,0,36,37,7,1,0,0,37,51,3,4,2,10,38,39,10,8,0,0,39,40,7,2,0,0,40,51,
+	3,4,2,9,41,42,10,7,0,0,42,43,5,10,0,0,43,51,3,4,2,8,44,45,10,6,0,0,45,46,
+	5,11,0,0,46,51,3,4,2,6,47,48,10,5,0,0,48,49,5,13,0,0,49,51,3,4,2,6,50,32,
+	1,0,0,0,50,35,1,0,0,0,50,38,1,0,0,0,50,41,1,0,0,0,50,44,1,0,0,0,50,47,1,
+	0,0,0,51,54,1,0,0,0,52,50,1,0,0,0,52,53,1,0,0,0,53,5,1,0,0,0,54,52,1,0,
+	0,0,55,56,5,19,0,0,56,57,5,22,0,0,57,62,3,4,2,0,58,59,5,12,0,0,59,61,3,
+	4,2,0,60,58,1,0,0,0,61,64,1,0,0,0,62,60,1,0,0,0,62,63,1,0,0,0,63,65,1,0,
+	0,0,64,62,1,0,0,0,65,66,5,23,0,0,66,7,1,0,0,0,67,71,5,16,0,0,68,71,5,17,
+	0,0,69,71,5,15,0,0,70,67,1,0,0,0,70,68,1,0,0,0,70,69,1,0,0,0,71,9,1,0,0,
+	0,6,13,30,50,52,62,70];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -876,14 +867,14 @@ export class FunctionCallContext extends ParserRuleContext {
 	public LPAREN(): TerminalNode {
 		return this.getToken(IbaLanguageParser.LPAREN, 0);
 	}
-	public RPAREN(): TerminalNode {
-		return this.getToken(IbaLanguageParser.RPAREN, 0);
-	}
 	public expression_list(): ExpressionContext[] {
 		return this.getTypedRuleContexts(ExpressionContext) as ExpressionContext[];
 	}
 	public expression(i: number): ExpressionContext {
 		return this.getTypedRuleContext(ExpressionContext, i) as ExpressionContext;
+	}
+	public RPAREN(): TerminalNode {
+		return this.getToken(IbaLanguageParser.RPAREN, 0);
 	}
     public get ruleIndex(): number {
     	return IbaLanguageParser.RULE_functionCall;

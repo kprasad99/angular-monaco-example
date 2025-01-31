@@ -14,22 +14,29 @@ import IbaLanguageParser, {
   ProgramContext
 } from '../antlr/IbaLanguageParser';
 import { ibaFunctions } from './iba-functions';
+import { BaseType } from './iba-interfaces';
 
-export function createTypeChecker(): IbaLanguageListener {
+export function createTypeChecker(): TypeCheckingListener {
   const typechecker = new TypeCheckingListener();
   return typechecker;
 }
 
 class TypeCheckingListener implements IbaLanguageListener {
-  private typeStack: string[] = [];
+  private typeStack: BaseType[] = [];
+  private errorStack: string[] = [];
   private predefinedFunctions = ibaFunctions;
 
+  getErrors(): string[] {
+    return this.errorStack;
+  }
+
   enterProgram(ctx: ProgramContext): void {
-    // console.log("Entering program...");
+    this.errorStack = [];
   }
 
   exitProgram(ctx: ProgramContext): void {
-    console.log('Type Stack:', this.typeStack);
+    // console.log('Type Stack:', this.typeStack);
+    // console.log('Error Stack:', this.errorStack);
   }
 
   enterFunctionExp(ctx: FunctionExpContext): void {
@@ -41,7 +48,7 @@ class TypeCheckingListener implements IbaLanguageListener {
     const funcDef = this.predefinedFunctions[functionName];
 
     if (!funcDef) {
-      console.error(`Error: Undefined function "${functionName}"`);
+      this.errorStack.push(`Error: Undefined function "${functionName}"`);
       return;
     }
 
@@ -50,14 +57,14 @@ class TypeCheckingListener implements IbaLanguageListener {
 
     // Check argument count
     if (funcDef.minArgs !== undefined && argCount < funcDef.minArgs) {
-      console.error(
+      this.errorStack.push(
         `Error: Function "${functionName}" expects at least ${funcDef.minArgs} arguments, but got ${argCount}`
       );
       return;
     }
 
     if (funcDef.maxArgs !== undefined && argCount > funcDef.maxArgs) {
-      console.error(
+      this.errorStack.push(
         `Error: Function "${functionName}" expects at most ${funcDef.maxArgs} arguments, but got ${argCount}`
       );
       return;
@@ -65,17 +72,25 @@ class TypeCheckingListener implements IbaLanguageListener {
 
     // Type checking (Consume from type stack)
     const argTypes: string[] = [];
-    for (let i = 0; i < argCount; i++) {
-        argTypes.unshift(this.typeStack.pop()!); // Pop in reverse order
-    }
+    providedArgs.forEach((arg, index) => {
+      if (!arg.children || arg.children.length === 0) { // Properly detect missing args now
+        this.errorStack.push(
+            `Error: Argument ${index + 1} of function "${functionName}" is missing or empty.`
+        );
+        argTypes.push("UNKNOWN"); // Push UNKNOWN for missing args
+      } else {
+        argTypes.push(this.typeStack.pop()!);
+      }
+    });
 
+    // Validate argument types
     argTypes.forEach((actualType, index) => {
-      const expectedType = funcDef.defaultArgs?.[index]?.type;
-      if (expectedType) {
+      const expectedType = funcDef.args?.[index]?.type as BaseType;
+      if (expectedType && actualType) {
         const isValid = Array.isArray(expectedType) ? expectedType.includes(actualType) : expectedType === actualType;
         if (!isValid) {
-          console.error(
-            `Error: Argument ${index + 1} of function "${functionName}" expects type "${expectedType}", but got "${actualType}"`
+          this.errorStack.push(
+            `Error: Argument ${index + 1} of function "${functionName}" expects type "${expectedType}", but got "${actualType}".`
           );
         }
       }
@@ -87,7 +102,7 @@ class TypeCheckingListener implements IbaLanguageListener {
 
   enterLiteralExp(ctx: LiteralExpContext): void {
     const literal = ctx.literal().getText();
-    let type: string;
+    let type: BaseType;
 
     if (/^\d+\.\d+$/.test(literal)) {
       type = 'FLOAT';
@@ -96,7 +111,7 @@ class TypeCheckingListener implements IbaLanguageListener {
     } else if (/^'.*'$/.test(literal) || /^".*"$/.test(literal)) {
       type = 'STRING';
     } else {
-      console.error(`Error: Unknown literal type for "${literal}"`);
+      this.errorStack.push(`Error: Unknown literal type for "${literal}"`);
       return;
     }
 
@@ -117,7 +132,7 @@ class TypeCheckingListener implements IbaLanguageListener {
       const functionName = ctx.functionCall().IDENTIFIER().getText();
       const funcDef = this.predefinedFunctions[functionName];
       if (!funcDef) {
-        console.error(`Error: Undefined function "${functionName}"`);
+        this.errorStack.push(`Error: Undefined function "${functionName}"`);
         return 'UNKNOWN';
       }
       return funcDef.returnType;
@@ -138,7 +153,7 @@ class TypeCheckingListener implements IbaLanguageListener {
     }
 
     // Default return value
-    console.error('Error: Unsupported context type for getExpressionType.');
+    this.errorStack.push('Error: Unsupported context type for getExpressionType.');
     return 'UNKNOWN';
   }
 
@@ -160,7 +175,7 @@ class TypeCheckingListener implements IbaLanguageListener {
 
   exitEqualityExp(ctx: EqualityExpContext): void {
     if (this.typeStack.length < 2) {
-      console.error('Error: Not enough operands for equality operation.');
+      this.errorStack.push('Error: Not enough operands for equality operation.');
       return;
     }
 
@@ -172,14 +187,14 @@ class TypeCheckingListener implements IbaLanguageListener {
     } else if (leftType === 'STRING' && rightType === 'STRING') {
       this.typeStack.push('BOOLEAN');
     } else {
-      console.error(`Error: Unsupported operand types for '=' or '<>': ${leftType}, ${rightType}`);
+      this.errorStack.push(`Error: Unsupported operand types for '=' or '<>': ${leftType}, ${rightType}`);
       this.typeStack.push('UNKNOWN');
     }
   }
 
   exitComparisonExp(ctx: ComparisonExpContext): void {
     if (this.typeStack.length < 2) {
-      console.error('Error: Not enough operands for comparison operation.');
+      this.errorStack.push('Error: Not enough operands for comparison operation.');
       return;
     }
 
@@ -191,7 +206,7 @@ class TypeCheckingListener implements IbaLanguageListener {
     } else if (leftType === 'STRING' && rightType === 'STRING') {
       this.typeStack.push('BOOLEAN');
     } else {
-      console.error(
+      this.errorStack.push(
         `Error: Unsupported operand types for comparison ('>', '<', '>=', '<='): ${leftType}, ${rightType}`
       );
       this.typeStack.push('UNKNOWN');
@@ -200,7 +215,7 @@ class TypeCheckingListener implements IbaLanguageListener {
 
   exitMulDivExp(ctx: MulDivExpContext): void {
     if (this.typeStack.length < 2) {
-      console.error('Error: Not enough operands for multiplication/division.');
+      this.errorStack.push('Error: Not enough operands for multiplication/division.');
       return;
     }
 
@@ -211,14 +226,14 @@ class TypeCheckingListener implements IbaLanguageListener {
       const resultType = leftType === 'FLOAT' || rightType === 'FLOAT' ? 'FLOAT' : 'INTEGER';
       this.typeStack.push(resultType);
     } else {
-      console.error(`Error: Unsupported operand types for '*' or '/': ${leftType}, ${rightType}`);
+      this.errorStack.push(`Error: Unsupported operand types for '*' or '/': ${leftType}, ${rightType}`);
       this.typeStack.push('UNKNOWN');
     }
   }
 
   exitAddSubExp(ctx: AddSubExpContext): void {
     if (this.typeStack.length < 2) {
-      console.error('Error: Not enough operands for addition/subtraction.');
+      this.errorStack.push('Error: Not enough operands for addition/subtraction.');
       return;
     }
 
@@ -229,21 +244,23 @@ class TypeCheckingListener implements IbaLanguageListener {
       if (ctx.children?.[1]?.getText() === '+') {
         this.typeStack.push('STRING'); // Concatenation
       } else {
-        console.error(`Error: Subtraction is not allowed with STRING types (left: ${leftType}, right: ${rightType})`);
+        this.errorStack.push(
+          `Error: Subtraction is not allowed with STRING types (left: ${leftType}, right: ${rightType})`
+        );
         this.typeStack.push('UNKNOWN');
       }
     } else if (['INTEGER', 'FLOAT'].includes(leftType) && ['INTEGER', 'FLOAT'].includes(rightType)) {
       const resultType = leftType === 'FLOAT' || rightType === 'FLOAT' ? 'FLOAT' : 'INTEGER';
       this.typeStack.push(resultType);
     } else {
-      console.error(`Error: Unsupported operand types for '+' or '-': ${leftType}, ${rightType}`);
+      this.errorStack.push(`Error: Unsupported operand types for '+' or '-': ${leftType}, ${rightType}`);
       this.typeStack.push('UNKNOWN');
     }
   }
 
   exitPowerExp(ctx: PowerExpContext): void {
     if (this.typeStack.length < 2) {
-      console.error('Error: Not enough operands for exponentiation.');
+      this.errorStack.push('Error: Not enough operands for exponentiation.');
       return;
     }
 
@@ -253,14 +270,14 @@ class TypeCheckingListener implements IbaLanguageListener {
     if (['INTEGER', 'FLOAT'].includes(leftType) && ['INTEGER', 'FLOAT'].includes(rightType)) {
       this.typeStack.push('FLOAT'); // Result is always FLOAT for exponentiation
     } else {
-      console.error(`Error: Unsupported operand types for '^': ${leftType}, ${rightType}`);
+      this.errorStack.push(`Error: Unsupported operand types for '^': ${leftType}, ${rightType}`);
       this.typeStack.push('UNKNOWN');
     }
   }
 
   exitLogicalExp(ctx: BooleanExpContext): void {
     if (this.typeStack.length < 2) {
-      console.error('Error: Not enough operands for logical operation.');
+      this.errorStack.push('Error: Not enough operands for logical operation.');
       return;
     }
 
@@ -270,14 +287,14 @@ class TypeCheckingListener implements IbaLanguageListener {
     if (leftType === 'BOOLEAN' && rightType === 'BOOLEAN') {
       this.typeStack.push('BOOLEAN');
     } else {
-      console.error(`Error: Unsupported operand types for logical operation: ${leftType}, ${rightType}`);
+      this.errorStack.push(`Error: Unsupported operand types for logical operation: ${leftType}, ${rightType}`);
       this.typeStack.push('UNKNOWN');
     }
   }
 
   exitNotExp(ctx: NotExpContext): void {
     if (this.typeStack.length < 1) {
-      console.error('Error: Not enough operands for logical NOT operation.');
+      this.errorStack.push('Error: Not enough operands for logical NOT operation.');
       return;
     }
 
@@ -286,7 +303,7 @@ class TypeCheckingListener implements IbaLanguageListener {
     if (operandType === 'BOOLEAN') {
       this.typeStack.push('BOOLEAN');
     } else {
-      console.error(`Error: Unsupported operand type for logical NOT operation: ${operandType}`);
+      this.errorStack.push(`Error: Unsupported operand type for logical NOT operation: ${operandType}`);
       this.typeStack.push('UNKNOWN');
     }
   }

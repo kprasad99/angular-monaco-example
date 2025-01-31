@@ -3,7 +3,7 @@ import { FunctionDefinition } from './iba-interfaces';
 export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   Abs: {
     name: 'Abs',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 1,
     args: [{ name: 'Expression', type: ['INTEGER', 'FLOAT'], required: true }],
@@ -33,7 +33,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Add: {
     name: 'Add',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 3,
     args: [
@@ -98,7 +98,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Avg: {
     name: 'Avg',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 2,
     args: [
@@ -117,7 +117,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Avg2: {
     name: 'Avg2',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 1000,
     args: [
@@ -135,7 +135,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   AvgInTime: {
     name: 'AvgInTime',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 3,
     args: [
@@ -300,7 +300,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Ceiling: {
     name: 'Ceiling',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 1,
     args: [
@@ -611,7 +611,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Count: {
     name: 'Count',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 4,
     maxArgs: 5,
     args: [
@@ -1285,7 +1285,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Exp: {
     name: 'Exp',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 1,
     args: [
@@ -1407,7 +1407,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Floor: {
     name: 'Floor',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 1,
     args: [
@@ -1764,7 +1764,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   GetFloatBit: {
     name: 'GetFloatBit',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 2,
     args: [
@@ -1931,7 +1931,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   HP: {
     name: 'HP',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 2,
     args: [
@@ -2354,7 +2354,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Max: {
     name: 'Max',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 2,
     args: [
@@ -2382,7 +2382,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Max2: {
     name: 'Max2',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 1000,
     args: [
@@ -2408,7 +2408,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   MaxInTime: {
     name: 'MaxInTime',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 3,
     args: [
@@ -2441,7 +2441,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Median2: {
     name: 'Median2',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 1000,
     args: [
@@ -2467,7 +2467,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   MedianInTime: {
     name: 'MedianInTime',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 3,
     args: [
@@ -2554,7 +2554,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Min: {
     name: 'Min',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 2,
     args: [
@@ -2582,7 +2582,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Min2: {
     name: 'Min2',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 1000,
     args: [
@@ -2609,7 +2609,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   MinInTime: {
     name: 'MinInTime',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 3,
     args: [
@@ -2798,7 +2798,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Mod: {
     name: 'Mod',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 2,
     args: [
@@ -3115,7 +3115,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Pow: {
     name: 'Pow',
-    returnType: argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes.every(t => t === 'INTEGER') ? 'INTEGER' : 'FLOAT'),
     minArgs: 2,
     maxArgs: 2,
     args: [
@@ -3302,7 +3302,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   Round: {
     name: 'Round',
-    returnType: argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
+    returnType: 'FLOAT', // argTypes => (argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT'),
     minArgs: 1,
     maxArgs: 1,
     args: [
@@ -3323,7 +3323,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   SampleAndHold: {
     name: 'SampleAndHold',
-    returnType: argTypes => argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT',
+    returnType: 'FLOAT', // argTypes => argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT',
     minArgs: 2,
     maxArgs: 4,
     args: [
@@ -3361,7 +3361,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   SampleOnce: {
     name: 'SampleOnce',
-    returnType: argTypes => argTypes[0] === 'STRING' ? 'STRING' : 'FLOAT',
+    returnType: 'FLOAT',
     minArgs: 2,
     maxArgs: 2,
     args: [
@@ -4147,7 +4147,7 @@ export const ibaFunctions: { [key: string]: FunctionDefinition } = {
   },
   VarDelay: {
     name: 'VarDelay',
-    returnType: argTypes => argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT',
+    returnType: 'FLOAT', // argTypes => argTypes[0] === 'INTEGER' ? 'INTEGER' : 'FLOAT',
     minArgs: 2,
     maxArgs: 3,
     args: [

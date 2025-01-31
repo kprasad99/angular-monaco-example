@@ -13,19 +13,7 @@ import {
 import IbaLanguageLexer from '../antlr/IbaLanguageLexer';
 import IbaLanguageParser, { ProgramContext } from '../antlr/IbaLanguageParser';
 import { createTypeChecker } from './iba-typechecker';
-
-export class ConsoleErrorListener extends ErrorListener<Token> {
-  override syntaxError(
-    recognizer: Recognizer<any>,
-    offendingSymbol: any,
-    line: number,
-    column: number,
-    msg: string,
-    e: RecognitionException | undefined
-  ) {
-    console.log('ERROR ' + msg);
-  }
-}
+import { IbaErrorListener } from './iba-error-listener';
 
 export class Error {
   startLine: number;
@@ -71,36 +59,12 @@ export function parseTree(input: string): ProgramContext {
 export function parseTreeStr(input: string): string {
   const lexer = createLexer(input);
   lexer.removeErrorListeners();
-  // lexer.addErrorListener(new ConsoleErrorListener());
+  lexer.addErrorListener(new IbaErrorListener());
   const parser = createParserFromLexer(lexer);
   parser.removeErrorListeners();
-  // parser.addErrorListener(new ConsoleErrorListener());
+  parser.addErrorListener(new IbaErrorListener());
   const tree = parser.program();
   return tree.toStringTree(parser.ruleNames, parser);
-}
-
-class CollectorErrorListener extends ErrorListener<Token> {
-  private errors: Error[] = [];
-
-  constructor(errors: Error[]) {
-    super();
-    this.errors = errors;
-  }
-
-  override syntaxError(
-    recognizer: Recognizer<Token>,
-    offendingSymbol: Token,
-    line: number,
-    column: number,
-    msg: string,
-    e: RecognitionException | undefined
-  ) {
-    var endColumn = column + 1;
-    if (offendingSymbol.text !== null) {
-      endColumn = column + offendingSymbol.text.length;
-    }
-    this.errors.push(new Error(line, line, column, endColumn, msg));
-  }
 }
 
 export class IbaLanguageErrorStrategy extends DefaultErrorStrategy {
@@ -144,26 +108,36 @@ export function createParseTreeWalker(): ParseTreeWalker {
 
 export function validate(input: string): Error[] {
   let errors: Error[] = [];
+  let syntaxErrors: string[] = [];
+  let semanticErrors: string[] = [];
 
   try {
     // Step 1: Lexical Analysis (Tokenize the input)
     const lexer = createLexer(input);
     lexer.removeErrorListeners();
+    lexer.addErrorListener(new IbaErrorListener());
 
     // Step 2: Parse the Token Stream
     const parser = createParserFromLexer(lexer);
     parser.removeErrorListeners();
+    parser.addErrorListener(new IbaErrorListener());
     const parseTree = parser.program();
+    const listener = (parser.getErrorListener() as any).delegates[0]; //! Apparently, getErrorListener does not return an instance of ErrorListener
+    syntaxErrors = listener.getErrors();
 
     // Step 3: Syntax Analysis
     const typechecker = createTypeChecker();
     const walker = createParseTreeWalker();
 
     walker.walk(typechecker, parseTree);
+    semanticErrors = typechecker.getErrors();
   
   } catch (error) {
     console.error('Error during validation:', error);
   }
+
+  console.log('Syntax Errors:', syntaxErrors);
+  console.log('Semantic Errors:', semanticErrors);
 
   return errors;
 }

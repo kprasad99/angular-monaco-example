@@ -1,8 +1,8 @@
-type BaseType = 'STRING' | 'INTEGER' | 'FLOAT' | 'BOOLEAN' | 'ANY';
+export type BaseType = 'STRING' | 'INTEGER' | 'FLOAT' | 'BOOLEAN' | 'ANY' | 'UNKNOWN';
 
-type TypeConstraint = BaseType | BaseType[];
+export type TypeConstraint = BaseType | BaseType[];
 
-type IbaType = string;
+export type IbaType = string;
 
 export interface FunctionInfo {
   id: string;
@@ -23,7 +23,7 @@ export interface FunctionArg {
 
 export interface FunctionDefinition {
   name: string;
-  returnType: BaseType | ((argTypes: BaseType[]) => BaseType);
+  returnType: BaseType // | ((argTypes: BaseType[]) => BaseType);
   minArgs?: number; // Minimum number of arguments (optional)
   maxArgs?: number; // Maximum number of arguments (optional)
   overloads?: FunctionDefinition[]; // Overloaded functions (optional)
