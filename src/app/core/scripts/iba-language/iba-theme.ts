@@ -8,28 +8,31 @@ const operatorColor = '000000'; // Operators: Black
 const delimiterColor = '6A737D'; // Delimiters: Gray (neutral)
 const terminatorColor = '959DA5'; // Line Terminators: Light gray
 const wsColor = 'FFFFFF'; // Whitespace: Invisible (matches background)
+const functionColor = '0000FF'; // Functions: Blue
 
 export const ibaLanguageTheme: monaco.editor.IStandaloneThemeData = {
   base: 'vs',
   inherit: false,
   colors: {},
   rules: [
-    // Keywords
-    { token: 'keyword.iba', foreground: keywordColor, fontStyle: 'bold' }, // e.g., 'AND', 'OR', 'NOT', etc.
+    // Boolean Operators (Logical & Bitwise)
+    { token: 'boolean_operator.iba', foreground: keywordColor, fontStyle: 'bold' },
 
     // Variables
-    { token: 'variable.iba', foreground: variableColor, fontStyle: 'italic' }, // e.g., '[variable]'
+    { token: 'variable.iba', foreground: variableColor, fontStyle: 'italic' }, // Matches VARIABLE token
 
-    // Strings
-    { token: 'single_quoted_string.iba', foreground: stringColor }, // SINGLE_QUOTED_STRING
-    { token: 'double_quoted_string.iba', foreground: stringColor }, // DOUBLE_QUOTED_STRING
+    // Strings (Merged Single & Double Quoted)
+    { token: 'string.iba', foreground: stringColor }, // Matches STRING token
 
     // Numbers
     { token: 'float.iba', foreground: numberColor }, // FLOAT
     { token: 'integer.iba', foreground: numberColor }, // INTEGER
 
     // Operators
-    { token: 'operator.iba', foreground: operatorColor }, // '=', '+', '-', '*', '/', etc.
+    { token: 'operator.iba', foreground: operatorColor }, // '=', '+', '-', '*', '/', '^', '<', '>', '<=', '>='
+
+    // Functions (Recognized at runtime)
+    { token: 'identifier.iba', foreground: functionColor, fontStyle: 'italic' }, // Matches IDENTIFIER token (e.g., True(), False(), custom functions)
 
     // Brackets
     { token: 'lbracket.iba', foreground: delimiterColor }, // '['

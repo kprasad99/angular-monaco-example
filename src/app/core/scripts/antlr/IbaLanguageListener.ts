@@ -1,4 +1,4 @@
-// Generated from IbaLanguage.g4 by ANTLR 4.13.2
+// Generated from ./IbaLanguage.g4 by ANTLR 4.13.2
 
 import {ParseTreeListener} from "antlr4";
 
@@ -6,19 +6,20 @@ import {ParseTreeListener} from "antlr4";
 import { ProgramContext } from "./IbaLanguageParser.js";
 import { RuleContext } from "./IbaLanguageParser.js";
 import { LiteralExpContext } from "./IbaLanguageParser.js";
+import { NotExpContext } from "./IbaLanguageParser.js";
 import { FunctionExpContext } from "./IbaLanguageParser.js";
 import { ParenthesisExpContext } from "./IbaLanguageParser.js";
 import { EqualityExpContext } from "./IbaLanguageParser.js";
 import { VariableExpContext } from "./IbaLanguageParser.js";
 import { ComparisonExpContext } from "./IbaLanguageParser.js";
 import { MulDivExpContext } from "./IbaLanguageParser.js";
+import { BooleanExpContext } from "./IbaLanguageParser.js";
 import { AddSubExpContext } from "./IbaLanguageParser.js";
 import { PowerExpContext } from "./IbaLanguageParser.js";
 import { FunctionCallContext } from "./IbaLanguageParser.js";
 import { FloatLiteralContext } from "./IbaLanguageParser.js";
 import { IntegerLiteralContext } from "./IbaLanguageParser.js";
-import { SingleQuotedStringLiteralContext } from "./IbaLanguageParser.js";
-import { DoubleQuotedStringLiteralContext } from "./IbaLanguageParser.js";
+import { StringLiteralContext } from "./IbaLanguageParser.js";
 
 
 /**
@@ -58,6 +59,18 @@ export default class IbaLanguageListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitLiteralExp?: (ctx: LiteralExpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `NotExp`
+	 * labeled alternative in `IbaLanguageParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterNotExp?: (ctx: NotExpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `NotExp`
+	 * labeled alternative in `IbaLanguageParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitNotExp?: (ctx: NotExpContext) => void;
 	/**
 	 * Enter a parse tree produced by the `FunctionExp`
 	 * labeled alternative in `IbaLanguageParser.expression`.
@@ -131,6 +144,18 @@ export default class IbaLanguageListener extends ParseTreeListener {
 	 */
 	exitMulDivExp?: (ctx: MulDivExpContext) => void;
 	/**
+	 * Enter a parse tree produced by the `BooleanExp`
+	 * labeled alternative in `IbaLanguageParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBooleanExp?: (ctx: BooleanExpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `BooleanExp`
+	 * labeled alternative in `IbaLanguageParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBooleanExp?: (ctx: BooleanExpContext) => void;
+	/**
 	 * Enter a parse tree produced by the `AddSubExp`
 	 * labeled alternative in `IbaLanguageParser.expression`.
 	 * @param ctx the parse tree
@@ -189,28 +214,16 @@ export default class IbaLanguageListener extends ParseTreeListener {
 	 */
 	exitIntegerLiteral?: (ctx: IntegerLiteralContext) => void;
 	/**
-	 * Enter a parse tree produced by the `SingleQuotedStringLiteral`
+	 * Enter a parse tree produced by the `StringLiteral`
 	 * labeled alternative in `IbaLanguageParser.literal`.
 	 * @param ctx the parse tree
 	 */
-	enterSingleQuotedStringLiteral?: (ctx: SingleQuotedStringLiteralContext) => void;
+	enterStringLiteral?: (ctx: StringLiteralContext) => void;
 	/**
-	 * Exit a parse tree produced by the `SingleQuotedStringLiteral`
+	 * Exit a parse tree produced by the `StringLiteral`
 	 * labeled alternative in `IbaLanguageParser.literal`.
 	 * @param ctx the parse tree
 	 */
-	exitSingleQuotedStringLiteral?: (ctx: SingleQuotedStringLiteralContext) => void;
-	/**
-	 * Enter a parse tree produced by the `DoubleQuotedStringLiteral`
-	 * labeled alternative in `IbaLanguageParser.literal`.
-	 * @param ctx the parse tree
-	 */
-	enterDoubleQuotedStringLiteral?: (ctx: DoubleQuotedStringLiteralContext) => void;
-	/**
-	 * Exit a parse tree produced by the `DoubleQuotedStringLiteral`
-	 * labeled alternative in `IbaLanguageParser.literal`.
-	 * @param ctx the parse tree
-	 */
-	exitDoubleQuotedStringLiteral?: (ctx: DoubleQuotedStringLiteralContext) => void;
+	exitStringLiteral?: (ctx: StringLiteralContext) => void;
 }
 

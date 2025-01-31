@@ -6,7 +6,9 @@ import IbaLanguageParser, {
   ExpressionContext,
   FunctionExpContext,
   LiteralExpContext,
+  BooleanExpContext,
   MulDivExpContext,
+  NotExpContext,
   ParenthesisExpContext,
   PowerExpContext,
   ProgramContext
@@ -31,41 +33,17 @@ class TypeCheckingListener implements IbaLanguageListener {
   }
 
   enterFunctionExp(ctx: FunctionExpContext): void {
-    const functionName = ctx.functionCall().KEYWORD().getText();
+    // console.log("Entering function expression...");
+  }
+
+  exitFunctionExp(ctx: FunctionExpContext): void {
+    const functionName = ctx.functionCall().IDENTIFIER().getText();
     const funcDef = this.predefinedFunctions[functionName];
 
     if (!funcDef) {
       console.error(`Error: Undefined function "${functionName}"`);
       return;
     }
-
-    const providedArgs = ctx.functionCall().expression_list();
-
-    // Validate argument types
-    providedArgs.forEach((argCtx, index) => {
-      const actualType = this.getExpressionType(argCtx);
-      const expectedType = funcDef.defaultArgs?.[index]?.type;
-
-      if (expectedType) {
-        const isValid = Array.isArray(expectedType) ? expectedType.includes(actualType) : expectedType === actualType;
-
-        if (!isValid) {
-          console.error(
-            `Error: Argument ${
-              index + 1
-            } of function "${functionName}" expects type "${expectedType}", but got "${actualType}"`
-          );
-        }
-      }
-    });
-
-    // Push return type to the stack
-    this.typeStack.push(funcDef.returnType);
-  }
-
-  exitFunctionExp(ctx: FunctionExpContext): void {
-    const functionName = ctx.functionCall().KEYWORD().getText();
-    const funcDef = this.predefinedFunctions[functionName];
 
     const providedArgs = ctx.functionCall().expression_list();
     const argCount = providedArgs.length;
@@ -75,16 +53,38 @@ class TypeCheckingListener implements IbaLanguageListener {
       console.error(
         `Error: Function "${functionName}" expects at least ${funcDef.minArgs} arguments, but got ${argCount}`
       );
+      return;
     }
 
     if (funcDef.maxArgs !== undefined && argCount > funcDef.maxArgs) {
       console.error(
         `Error: Function "${functionName}" expects at most ${funcDef.maxArgs} arguments, but got ${argCount}`
       );
+      return;
     }
+
+    // Type checking (Consume from type stack)
+    const argTypes: string[] = [];
+    for (let i = 0; i < argCount; i++) {
+        argTypes.unshift(this.typeStack.pop()!); // Pop in reverse order
+    }
+
+    argTypes.forEach((actualType, index) => {
+      const expectedType = funcDef.defaultArgs?.[index]?.type;
+      if (expectedType) {
+        const isValid = Array.isArray(expectedType) ? expectedType.includes(actualType) : expectedType === actualType;
+        if (!isValid) {
+          console.error(
+            `Error: Argument ${index + 1} of function "${functionName}" expects type "${expectedType}", but got "${actualType}"`
+          );
+        }
+      }
+    });
+
+    // Push return type to the stack
+    this.typeStack.push(funcDef.returnType);
   }
 
-  // Process literal expressions
   enterLiteralExp(ctx: LiteralExpContext): void {
     const literal = ctx.literal().getText();
     let type: string;
@@ -107,16 +107,14 @@ class TypeCheckingListener implements IbaLanguageListener {
     // console.log("Exiting literal expression...");
   }
 
-  // Helper function to get expression type
   getExpressionType(ctx: LiteralExpContext | ExpressionContext | FunctionExpContext | ParenthesisExpContext): string {
     // Handle literal expressions
     if (ctx instanceof LiteralExpContext) {
       return ctx.parser?.getSymbolicNames()[ctx.start.type] || 'UNKNOWN';
     }
-
     // Handle function expressions
     if (ctx instanceof FunctionExpContext) {
-      const functionName = ctx.functionCall().KEYWORD().getText();
+      const functionName = ctx.functionCall().IDENTIFIER().getText();
       const funcDef = this.predefinedFunctions[functionName];
       if (!funcDef) {
         console.error(`Error: Undefined function "${functionName}"`);
@@ -124,7 +122,6 @@ class TypeCheckingListener implements IbaLanguageListener {
       }
       return funcDef.returnType;
     }
-
     // Handle parenthesized expressions (recursively resolve the type inside the parentheses)
     if (ctx instanceof ParenthesisExpContext) {
       const childCtx = ctx.expression(); // This should return the inner expression (1 + 2)
@@ -132,7 +129,6 @@ class TypeCheckingListener implements IbaLanguageListener {
         return this.getExpressionType(childCtx);
       }
     }
-
     // Handle other expressions (recursively resolve the child expression)
     if (ctx instanceof ExpressionContext) {
       const childCtx = ctx.getChild(0); // Assuming it's a single expression node
@@ -258,6 +254,39 @@ class TypeCheckingListener implements IbaLanguageListener {
       this.typeStack.push('FLOAT'); // Result is always FLOAT for exponentiation
     } else {
       console.error(`Error: Unsupported operand types for '^': ${leftType}, ${rightType}`);
+      this.typeStack.push('UNKNOWN');
+    }
+  }
+
+  exitLogicalExp(ctx: BooleanExpContext): void {
+    if (this.typeStack.length < 2) {
+      console.error('Error: Not enough operands for logical operation.');
+      return;
+    }
+
+    const rightType = this.typeStack.pop()!;
+    const leftType = this.typeStack.pop()!;
+
+    if (leftType === 'BOOLEAN' && rightType === 'BOOLEAN') {
+      this.typeStack.push('BOOLEAN');
+    } else {
+      console.error(`Error: Unsupported operand types for logical operation: ${leftType}, ${rightType}`);
+      this.typeStack.push('UNKNOWN');
+    }
+  }
+
+  exitNotExp(ctx: NotExpContext): void {
+    if (this.typeStack.length < 1) {
+      console.error('Error: Not enough operands for logical NOT operation.');
+      return;
+    }
+
+    const operandType = this.typeStack.pop()!;
+
+    if (operandType === 'BOOLEAN') {
+      this.typeStack.push('BOOLEAN');
+    } else {
+      console.error(`Error: Unsupported operand type for logical NOT operation: ${operandType}`);
       this.typeStack.push('UNKNOWN');
     }
   }

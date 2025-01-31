@@ -17,38 +17,36 @@ expression
     | expression ('>' | '<' | '>=' | '<=' | '<>') expression     #ComparisonExp
     | expression '=' expression                                  #EqualityExp
     | <assoc=right> expression '^' expression                    #PowerExp
+    | expression BOOLEAN_OPERATOR expression                     #BooleanExp
+    | BOOLEAN_OPERATOR expression                                #NotExp
     | functionCall                                               #FunctionExp
     | VARIABLE                                                   #VariableExp
     | literal                                                    #LiteralExp
     ;
 
-functionCall: KEYWORD '(' (expression (',' expression)*)? ')';
+functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')';
 
 literal
-    : FLOAT                                    #FloatLiteral
-    | INTEGER                                  #IntegerLiteral
-    | SINGLE_QUOTED_STRING                     #SingleQuotedStringLiteral
-    | DOUBLE_QUOTED_STRING                     #DoubleQuotedStringLiteral;
+    : FLOAT                 #FloatLiteral
+    | INTEGER               #IntegerLiteral
+    | STRING                #StringLiteral;
 
 /*
  * Lexer Rules
  */
 
-KEYWORD:
-    'AND' | 'OR' | 'NOT' | 
-    'Add' | 'Subtract' | 'Multiply' | 'Divide' | 
-    'Greater' | 'Less' | 'Equal' | 'Mod' | 
-    'Min' | 'Max' | 'ConcatText' | 'ReplaceText' | 'TrimText';
+BOOLEAN_OPERATOR: 'AND' | 'OR' | 'NOT' | 'XOR' | 'bw_AND' | 'bw_OR' | 'bw_XOR';
 
-VARIABLE: '[' .*? ']';
+VARIABLE: '[' ~']'* ']';
 
-SINGLE_QUOTED_STRING: '\'' ( ~['\\] | '\\'. )* '\'';
-DOUBLE_QUOTED_STRING: '"' ( ~["\\] | '\\'. )* '"';
+STRING: '\'' ( ~['\\] | '\\'. )* '\'' | '"' ( ~["\\] | '\\'. )* '"';
 
 FLOAT: [0-9]+ '.' [0-9]*;
 INTEGER: [0-9]+;
 
 OPERATOR: '=' | '>' | '<' | '>=' | '<=' | '<>' | '+' | '-' | '*' | '/' | ',';
+
+IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 
 LBRACKET: '[';
 RBRACKET: ']';
