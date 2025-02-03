@@ -1,21 +1,17 @@
 export type BaseType = 'STRING' | 'INTEGER' | 'FLOAT' | 'BOOLEAN' | 'ANY' | 'UNKNOWN';
 
-export type TypeConstraint = BaseType | BaseType[];
-
-export type IbaType = string;
-
-export interface FunctionInfo {
+export interface FunctionMetadata {
   id: string;
   category: string;
   name: string;
   formula: string;
   description: string;
-  returnType: IbaType;
+  returnType: string;
 }
 
 export interface FunctionArg {
   name: string;
-  type: TypeConstraint;
+  type: BaseType | BaseType[];
   required: boolean;
   defaultValue?: any;
   enum?: any[];
@@ -24,9 +20,9 @@ export interface FunctionArg {
 export interface FunctionDefinition {
   name: string;
   returnType: BaseType // | ((argTypes: BaseType[]) => BaseType);
-  minArgs?: number; // Minimum number of arguments (optional)
-  maxArgs?: number; // Maximum number of arguments (optional)
-  overloads?: FunctionDefinition[]; // Overloaded functions (optional)
+  minArgs?: number
+  maxArgs?: number;
+  overloads?: FunctionDefinition[];
   args?: FunctionArg[];
-  info?: FunctionInfo;
+  info?: FunctionMetadata;
 }
