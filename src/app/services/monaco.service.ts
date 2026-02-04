@@ -66,6 +66,17 @@ export class MonacoService {
   }
 
   /**
+   * Disposes the YAML configuration
+   */
+  disposeYaml(): void {
+    if (this.yamlDisposable) {
+      this.yamlDisposable.dispose();
+      this.yamlDisposable = null;
+      this.yamlConfigured = false;
+    }
+  }
+
+  /**
    * Check if YAML support has been configured
    */
   isYamlConfigured(): boolean {

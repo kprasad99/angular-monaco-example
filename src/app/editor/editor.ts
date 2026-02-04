@@ -9,12 +9,32 @@ import {
   model,
   effect,
   signal,
+  output,
 } from '@angular/core';
 import { MonacoService, YamlConfiguration } from '../services/monaco.service';
 
 export interface EditorSchema {
   uri: string;
   fileMatch?: string[];
+}
+
+/**
+ * Provides access to editor value and instance
+ */
+export class EditorValueProvider {
+  constructor(private editor: import('monaco-editor').editor.IStandaloneCodeEditor) {}
+
+  getValue(): string {
+    return this.editor.getValue();
+  }
+
+  setValue(value: string): void {
+    this.editor.setValue(value);
+  }
+
+  getEditor(): import('monaco-editor').editor.IStandaloneCodeEditor {
+    return this.editor;
+  }
 }
 
 type Monaco = typeof import('monaco-editor');
@@ -38,15 +58,19 @@ export class EditorComponent implements OnInit, OnDestroy {
   readonly enableHover = input<boolean>(true);
   readonly enableCompletion = input<boolean>(true);
   readonly enableMinimap = input<boolean>(true);
+  readonly modelUri = input<string>(''); // Custom model URI, auto-generated if empty
 
   // Two-way binding for editor value
   readonly value = model<string>('');
+
+  // Output emitted when editor is ready
+  readonly editorReady = output<EditorValueProvider>();
 
   // Internal state
   private readonly monacoService = inject(MonacoService);
   private codeEditorInstance: Editor | null = null;
   private monaco: Monaco | null = null;
-  private modelUri: import('monaco-editor').Uri | null = null;
+  private internalModelUri: import('monaco-editor').Uri | null = null;
   private isUpdatingFromEditor = false;
   private initialized = signal(false);
   private previousSchema: EditorSchema | null = null;
@@ -128,27 +152,43 @@ export class EditorComponent implements OnInit, OnDestroy {
     // Lazily load Monaco
     this.monaco = await this.monacoService.getMonaco();
 
-    // Create model URI
-    this.modelUri = this.monaco.Uri.parse(`editor://model/${Date.now()}.${this.getFileExtension()}`);
+    // Dispose any existing models and editors to prevent memory leaks
+    this.monaco.editor.getModels().forEach((model) => model.dispose());
+    this.monaco.editor.getEditors().forEach((editor) => editor.dispose());
 
-    // Configure YAML if needed and store initial values
-    if (this.language() === 'yaml') {
-      this.previousSchema = this.schema();
+    // Create model URI - use custom URI if provided, otherwise auto-generate
+    const customUri = this.modelUri();
+    this.internalModelUri = customUri
+      ? this.monaco.Uri.parse(customUri)
+      : this.monaco.Uri.parse(`editor://model/${Date.now()}.${this.getFileExtension()}`);
+
+    const lang = this.language();
+    const schema = this.schema();
+    const isValidationEnabled = this.enableValidation() && !!schema?.uri;
+
+    // Configure language-specific validation
+    if (lang === 'yaml') {
+      this.previousSchema = schema;
       this.previousYamlOptions = {
         validation: this.enableValidation(),
         hover: this.enableHover(),
         completion: this.enableCompletion(),
       };
       await this.configureYaml();
+    } else if (lang === 'json') {
+      this.configureJson(isValidationEnabled, schema);
     }
+
+    // Create editor model
+    const editorModel = this.monaco.editor.createModel(this.value(), lang, this.internalModelUri);
 
     // Create editor instance
     this.codeEditorInstance = this.monaco.editor.create(this._editorContainer.nativeElement, {
       theme: this.theme(),
       minimap: { enabled: this.enableMinimap() },
       automaticLayout: true,
-      language: this.language(),
-      model: this.monaco.editor.createModel(this.value(), this.language(), this.modelUri),
+      language: lang,
+      model: editorModel,
     });
 
     // Listen for content changes
@@ -161,13 +201,38 @@ export class EditorComponent implements OnInit, OnDestroy {
     });
 
     this.initialized.set(true);
+
+    // Emit editorReady event
+    this.editorReady.emit(new EditorValueProvider(this.codeEditorInstance));
   }
 
   ngOnDestroy(): void {
+    // Dispose YAML configuration
+    this.monacoService.disposeYaml();
+
+    // Dispose editor instance
     if (this.codeEditorInstance) {
       this.codeEditorInstance.dispose();
       this.codeEditorInstance = null;
     }
+  }
+
+  private configureJson(isValidationEnabled: boolean, schema: EditorSchema | null): void {
+    if (!this.monaco) return;
+
+    this.monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      enableSchemaRequest: true,
+      validate: isValidationEnabled,
+      schemaValidation: isValidationEnabled ? 'error' : 'warning',
+      schemas: schema?.uri
+        ? [
+            {
+              uri: schema.uri,
+              fileMatch: schema.fileMatch ?? [String(this.internalModelUri)],
+            },
+          ]
+        : [],
+    });
   }
 
   private async configureYaml(): Promise<void> {
@@ -184,10 +249,10 @@ export class EditorComponent implements OnInit, OnDestroy {
     const schema = this.schema();
     const schemas: YamlConfiguration['schemas'] = [];
 
-    if (schema && this.modelUri) {
+    if (schema && this.internalModelUri) {
       schemas.push({
         uri: schema.uri,
-        fileMatch: schema.fileMatch ?? [String(this.modelUri)],
+        fileMatch: schema.fileMatch ?? [String(this.internalModelUri)],
       });
     }
 
@@ -215,15 +280,20 @@ export class EditorComponent implements OnInit, OnDestroy {
     }
 
     // Create new model URI with appropriate extension
-    this.modelUri = this.monaco.Uri.parse(`editor://model/${Date.now()}.${this.getFileExtension()}`);
+    this.internalModelUri = this.monaco.Uri.parse(`editor://model/${Date.now()}.${this.getFileExtension()}`);
 
     // Create new model
-    const newModel = this.monaco.editor.createModel(currentValue, language, this.modelUri);
+    const newModel = this.monaco.editor.createModel(currentValue, language, this.internalModelUri);
     this.codeEditorInstance.setModel(newModel);
 
-    // Configure YAML if switching to YAML
+    // Configure language-specific features
+    const schema = this.schema();
+    const isValidationEnabled = this.enableValidation() && !!schema?.uri;
+
     if (language === 'yaml') {
       this.configureYaml();
+    } else if (language === 'json') {
+      this.configureJson(isValidationEnabled, schema);
     }
   }
 
