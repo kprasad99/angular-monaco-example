@@ -1,4 +1,19 @@
+/* Import Tailwind CSS */
+@use "tailwindcss";
+
 /* You can add global styles to this file, and also import other style files */
+
+/*
+ * Override Monaco Editor codicon font - this MUST come after Monaco's CSS
+ * Monaco dynamically injects CSS with font-face rules, so we override with higher specificity
+ */
+@font-face {
+  font-family: "codicon";
+  font-display: block;
+  src: url("/assets/fonts/codicon.ttf") format("truetype") !important;
+  font-weight: 400;
+  font-style: normal;
+}
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -2,7 +2,7 @@ import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { AppComponent } from './app.component';
+import { AppComponent } from './app';
 
 describe('AppComponent', () => {
   beforeEach(async () => {

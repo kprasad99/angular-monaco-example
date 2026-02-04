@@ -229,3 +229,77 @@ export class EditorComponent implements OnInit {
 == Development server
 
 - Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+== Lazy Loading Monaco Editor
+
+This project uses Angular's `@defer` block with a `MonacoService` to lazily load Monaco Editor only when needed, reducing the initial bundle size from ~4MB to ~315KB.
+
+=== Architecture
+
+* **MonacoService** (`src/app/services/monaco.service.ts`) - Singleton service that:
+** Lazily loads Monaco via dynamic `import()`
+** Conditionally loads `monaco-yaml` only when language is YAML
+** Handles codicon font injection once
+
+* **EditorComponent** (`src/app/editor/editor.component.ts`) - Configurable editor with signal inputs:
+** `language` - Editor language (default: `'yaml'`)
+** `theme` - Editor theme (default: `'vs-dark'`)
+** `schema` - JSON schema configuration for validation
+** `enableValidation`, `enableHover`, `enableCompletion`, `enableMinimap` - Feature toggles
+** `value` - Two-way binding for editor content
+
+=== Defer Trigger Options
+
+Use these triggers in your template to control when Monaco loads:
+
+[cols="1,3"]
+|===
+|Trigger |Behavior
+
+|`on viewport`
+|Loads when element scrolls into view (best for visible content)
+
+|`on interaction`
+|Loads on click/focus/keydown on placeholder (explicit user intent)
+
+|`on hover`
+|Loads when user hovers over placeholder
+
+|`on idle`
+|Loads when browser is idle (background preloading)
+
+|`on timer(500ms)`
+|Loads after specified delay
+
+|`when condition`
+|Loads when expression becomes true (programmatic control)
+|===
+
+=== Example Usage
+
+[source,html]
+----
+@defer (on viewport; prefetch on idle) {
+  <k-editor
+    [language]="'yaml'"
+    [theme]="'vs-dark'"
+    [schema]="{ uri: './assets/schemas/my-schema.json' }"
+    [enableValidation]="true"
+    [(value)]="editorContent"
+  />
+} @placeholder {
+  <div>Click to load editor</div>
+} @loading {
+  <div>Loading editor...</div>
+}
+----
+
+=== Prefetch Strategy
+
+Combine triggers with `prefetch` to silently load Monaco in the background:
+
+* `prefetch on idle` - Preload during browser idle time
+* `prefetch on viewport` - Preload when placeholder becomes visible
+* `prefetch on timer(2s)` - Preload after 2 seconds
+
+Example: `@defer (on interaction; prefetch on idle)` shows a placeholder, preloads Monaco during idle, but only renders when user clicks.

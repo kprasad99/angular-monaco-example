@@ -1,0 +1,41 @@
+<div class="app-container">
+  <mat-toolbar class="toolbar-primary">
+    <span>Angular Monaco YAML Example</span>
+    <div class="flex-1"></div>
+  </mat-toolbar>
+  <div class="content-area">
+    <div class="h-full">
+      @defer (on viewport; prefetch on idle) {
+        <k-editor
+          [language]="'yaml'"
+          [theme]="'vs-dark'"
+          [schema]="schemaConfig"
+          [enableValidation]="true"
+          [enableHover]="true"
+          [enableCompletion]="true"
+          [enableMinimap]="true"
+          [(value)]="editorContent"
+        />
+      } @placeholder {
+        <div class="flex items-center justify-center h-full bg-gray-800 text-gray-300 cursor-pointer rounded-lg">
+          <div class="text-center">
+            <div class="text-4xl mb-2">📝</div>
+            <div>Click to load editor</div>
+          </div>
+        </div>
+      } @loading {
+        <div class="flex items-center justify-center h-full bg-gray-800 text-gray-300 rounded-lg">
+          <div class="text-center">
+            <div class="animate-spin text-4xl mb-2">⏳</div>
+            <div>Loading editor...</div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  <mat-toolbar class="toolbar-primary">
+    <div class="flex flex-row items-center justify-center w-full">
+      All Rights Reserved 2003-2026 &#64; Karthik Prasad
+    </div>
+  </mat-toolbar>
+</div>

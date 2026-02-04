@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditorComponent } from './editor.component';
+import { EditorComponent } from './editor';
 
 describe('EditorComponent', () => {
   let component: EditorComponent;

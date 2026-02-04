@@ -1,0 +1,20 @@
+/* Component styles */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.toolbar-primary {
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  flex-shrink: 0;
+}
+
+.content-area {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}

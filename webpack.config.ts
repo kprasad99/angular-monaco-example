@@ -1,5 +1,6 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 import * as webpack from 'webpack';
+import * as path from 'path';
 
 export default (config: webpack.Configuration) => {
   config?.plugins?.push(
@@ -76,26 +77,40 @@ export default (config: webpack.Configuration) => {
       ]
     })
   );
-  // Remove the existing css loader rule
+
+  // Ensure output publicPath is set correctly for assets
+  if (config.output) {
+    config.output.publicPath = '';
+  }
+
+  // Remove the existing css loader rule for monaco
   const cssRuleIdx = config?.module?.rules?.findIndex((rule: any) => rule.test?.toString().includes(':css'));
   if (cssRuleIdx !== -1) {
     config?.module?.rules?.splice(cssRuleIdx!, 1);
   }
+
   config?.module?.rules?.push(
     {
       test: /\.css$/,
-      use: ['style-loader', 'css-loader']
+      use: [
+        'style-loader',
+        {
+          loader: 'css-loader',
+          options: {
+            url: true,
+            import: true
+          }
+        }
+      ]
     },
-    // webpack 4 or lower
-    //{
-    //  test: /\.ttf$/,
-    //  use: ['file-loader'],
-    //}
-
-    // webpack 5
+    // Handle Monaco Editor font files (codicons) - must process ttf files from node_modules
     {
       test: /\.ttf$/,
-      type: 'asset/resource'
+      type: 'asset/resource',
+      generator: {
+        filename: 'assets/fonts/[name][ext]',
+        publicPath: '/'
+      }
     }
   );
   return config;

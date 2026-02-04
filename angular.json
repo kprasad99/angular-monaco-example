@@ -35,7 +35,6 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
-              "node_modules/monaco-editor/min/vs/editor/editor.main.css",
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
