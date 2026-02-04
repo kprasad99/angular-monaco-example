@@ -6,8 +6,10 @@ import { configureMonacoYaml } from 'monaco-yaml';
 
 @Component({
   selector: 'k-editor',
+  standalone: true,
+  imports: [],
   templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.scss']
+  styleUrl: './editor.component.scss'
 })
 export class EditorComponent implements OnInit {
   @ViewChild('editorContainer', { static: true }) _editorContainer!: ElementRef;
